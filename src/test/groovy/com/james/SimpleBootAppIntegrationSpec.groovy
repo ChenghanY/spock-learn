@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext
 
 @SpringBootTest(classes = SimpleBootApp)
 class SimpleBootAppIntegrationSpec extends Specification {
+
   @Autowired
   ApplicationContext context
 
@@ -16,6 +17,7 @@ class SimpleBootAppIntegrationSpec extends Specification {
     expect:
     context != null
     context.containsBean("helloWorldService")
+    context.containsBean("helloWorldController")
     context.containsBean("simpleBootApp")
   }
 }
