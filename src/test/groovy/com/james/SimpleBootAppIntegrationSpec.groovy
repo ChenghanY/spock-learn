@@ -16,7 +16,6 @@ class SimpleBootAppIntegrationSpec extends Specification {
   def "test context loads"() {
     expect:
     context != null
-    context.containsBean("helloWorldService")
     context.containsBean("helloWorldController")
     context.containsBean("simpleBootApp")
   }
