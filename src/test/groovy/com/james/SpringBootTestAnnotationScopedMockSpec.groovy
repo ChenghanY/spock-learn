@@ -38,29 +38,6 @@ class SpringBootTestAnnotationScopedMockSpec extends Specification {
   @Autowired
   HelloWorldService helloWorldService
 
-  def "验证spring.main.allow-bean-definition-overriding=true成功"() {
-    expect:
-    context != null
-    context.containsBean("helloWorldService")
-    !context.containsBean("scopedTarget.helloWorldService") // bean同名重写成功，忽略了spring的注解
-    context.containsBean("simpleBootApp")
-  }
-
-  def "验证当前注入的bean不是spring的代理类，且mock返回值成功"() {
-    expect:
-    // 验证bean不是spring动态代理的产物
-    !helloWorldService.class.simpleName.startsWith('HelloWorldService$$EnhancerBySpringCGLIB$$')
-
-    when:
-    def result = helloWorldService.helloMessage
-
-    then:
-    // 1 * 表示调用一次;  >>  表示 mock了 getHelloMessage()的返回值
-    1 * helloWorldService.getHelloMessage() >> 'sup?'
-    result == 'sup?'
-  }
-
-
   @TestConfiguration
   static class MockConfig {
     def detachedMockFactory = new DetachedMockFactory()
@@ -70,4 +47,25 @@ class SpringBootTestAnnotationScopedMockSpec extends Specification {
       return detachedMockFactory.Mock(HelloWorldService)
     }
   }
+
+  def "验证未加注解的类不会被扫描"() {
+    expect:
+    context != null
+    context.containsBean("helloWorldService")
+    !context.containsBean("scopedTarget.helloWorldService")
+    context.containsBean("simpleBootApp")
+  }
+
+  def "验证当前mock的bean不是spring的代理类，且mock返回值成功"() {
+    expect: "验证bean不是spring动态代理的产物"
+    !helloWorldService.class.simpleName.startsWith('HelloWorldService$$EnhancerBySpringCGLIB$$')
+
+    when:
+    def result = helloWorldService.helloMessage
+
+    then: "1 * 表示调用一次;  >>  表示 mock了 getHelloMessage()的返回值"
+    1 * helloWorldService.getHelloMessage() >> 'sup?'
+    result == 'sup?'
+  }
+
 }
